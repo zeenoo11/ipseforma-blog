@@ -1,121 +1,121 @@
 ---
+/**
+ * index.astro — ipseforma blog index (Variation B · "Reading Room")
+ * Centered column, quiet hero, year-grouped stanza rows.
+ */
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import Socials from "@/components/Socials.astro";
-import LinkButton from "@/components/LinkButton.astro";
-import Card from "@/components/Card.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import IconRss from "@/assets/icons/IconRss.svg";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
-import { SITE } from "@/config";
-import { SOCIALS } from "@/constants";
+import { getPath } from "@/utils/getPath";
+import { slugifyStr } from "@/utils/slugify";
 
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.draft);
+const sorted = getSortedPosts(posts);
 
-const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+// Group by year (newest first)
+type Row = { id: string; filePath?: string; data: any; year: string; no: string };
+const rows: Row[] = sorted.map((p, i) => ({
+  id: p.id,
+  filePath: p.filePath,
+  data: p.data,
+  year: new Date(p.data.pubDatetime).getUTCFullYear().toString(),
+  no: String(sorted.length - i).padStart(3, "0"),
+}));
+
+const groups: { year: string; posts: Row[] }[] = [];
+for (const r of rows) {
+  let g = groups.find(x => x.year === r.year);
+  if (!g) { g = { year: r.year, posts: [] }; groups.push(g); }
+  g.posts.push(r);
+}
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "2-digit" });
+
+// Read-time helper — rough words/min estimate from the body text
+const WPM = 220;
+const readMin = (p: any) => {
+  const txt = (p.body || "").replace(/[^\w\s]/g, " ");
+  const n = txt.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(n / WPM));
+};
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index" class="app-layout">
-    <section id="hero" class:list={["pt-8 pb-6", "border-b border-border"]}>
-      <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-        Mingalaba
+
+  <main id="main-content" class="ipf-index-wrap">
+    <!-- Hero -->
+    <header class="ipf-index-hero">
+      <div class="ipf-meta" style="margin-bottom: 28px;">§ — Writing</div>
+      <h1 class="ipf-display">
+        The reading<br /><em>room.</em>
       </h1>
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="inline-block"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <IconRss
-          width={20}
-          height={20}
-          class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
-        />
-        <span class="sr-only">RSS Feed</span>
-      </a>
-
       <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
+        A small collection of essays, notebook entries, and fragments.
+        Updated when a thing is ready, not before.
       </p>
-      <p class="mt-2">
-        Read the blog posts or check
-        <LinkButton
-          class="underline decoration-dashed underline-offset-4 hover:text-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
-      </p>
-      {
-        // only display if at least one social link is enabled
-        SOCIALS.length > 0 && (
-          <div class="mt-4 flex max-sm:flex-col sm:items-center">
-            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">Social Links:</div>
-            <Socials />
+      <div class="ipf-index-cta">
+        <a href="/rss.xml" class="ipf-pill">
+          <span class="dot"></span> Subscribe · RSS
+        </a>
+        <a href="#all" class="ipf-pill" style="border-color: var(--ink);">
+          {sorted.length} pieces ↓
+        </a>
+      </div>
+    </header>
+
+    <!-- Year groups -->
+    <div id="all">
+      {groups.map(group => (
+        <section class="ipf-year-group">
+          <div class="ipf-year-label">
+            <div class="year">{group.year}</div>
+            <div class="ipf-meta">
+              {group.posts.length} {group.posts.length === 1 ? "entry" : "entries"}
+            </div>
           </div>
-        )
-      }
-    </section>
 
-    {
-      featuredPosts.length > 0 && (
-        <section
-          id="featured"
-          class:list={[
-            "pt-12 pb-6",
-            { "border-b border-border": recentPosts.length > 0 },
-          ]}
-        >
-          <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>
-          <ul>
-            {featuredPosts.map(data => (
-              <Card variant="h3" {...data} />
-            ))}
-          </ul>
+          <div>
+            {group.posts.map(p => {
+              const href = getPath(p.id, p.filePath);
+              const tag = p.data.tags?.[0] ?? "Notebook";
+              return (
+                <a href={href} class="ipf-row-b">
+                  <div class="rowhead">
+                    <span class="no">{p.no}</span>
+                    <span class="ipf-meta">
+                      {fmt(new Date(p.data.pubDatetime))} · {tag} · {readMin(p)} min
+                    </span>
+                  </div>
+                  <h3
+                    transition:name={slugifyStr(p.data.title.replaceAll(".", "-"))}
+                  >
+                    {p.data.title}
+                  </h3>
+                  {p.data.description && <p>{p.data.description}</p>}
+                </a>
+              );
+            })}
+          </div>
         </section>
-      )
-    }
+      ))}
+    </div>
 
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
-          </ul>
-        </section>
-      )
-    }
-
-    <div class="my-8 text-center">
-      <LinkButton href="/posts/">
-        All Posts
-        <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </LinkButton>
+    <div class="ipf-index-foot">
+      <div class="colophon">Written mostly at dawn, revised mostly at dusk.</div>
+      <div class="ipf-meta">© MMXXVI ipseforma</div>
     </div>
   </main>
+
   <Footer />
 </Layout>
 
 <script>
+  // Remember index location for BackButton-style returns
   document.addEventListener("astro:page-load", () => {
-    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
-      ?.dataset?.layout;
-    if (indexLayout) {
-      sessionStorage.setItem("backUrl", "/");
-    }
+    sessionStorage.setItem("backUrl", "/");
   });
 </script>

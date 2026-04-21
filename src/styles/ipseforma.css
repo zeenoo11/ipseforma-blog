@@ -1,0 +1,312 @@
+/* ipseforma blog — shared styles (Astro)
+ * Matches the main site src/index.css from zeenoo11/ipseforma
+ * Index = "Reading Room" (Var B), Post = "Editorial Ledger" (Var A)
+ *
+ * Drop into src/styles/ipseforma.css and import from Layout.astro:
+ *   import "@/styles/ipseforma.css";
+ */
+
+:root,
+html[data-theme="light"] {
+  --ink: oklch(0.18 0.008 80);
+  --ink-soft: oklch(0.38 0.008 80);
+  --ink-whisper: oklch(0.60 0.006 80);
+  --paper: oklch(0.972 0.006 85);
+  --paper-deep: oklch(0.94 0.008 82);
+  --rule: oklch(0.18 0.008 80 / 0.14);
+
+  --serif: "Cormorant Garamond", "Noto Serif KR", ui-serif, Georgia, serif;
+  --read: "Newsreader", "Noto Serif KR", ui-serif, Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+html[data-theme="dark"] {
+  --ink: oklch(0.94 0.006 85);
+  --ink-soft: oklch(0.72 0.006 85);
+  --ink-whisper: oklch(0.48 0.006 85);
+  --paper: oklch(0.135 0.008 80);
+  --paper-deep: oklch(0.175 0.008 80);
+  --rule: oklch(0.94 0.006 85 / 0.14);
+}
+
+html { background: var(--paper); }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--read);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+/* Paper grain (fixed overlay, same as main site) */
+body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+html[data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.35; }
+
+body > * { position: relative; z-index: 2; }
+
+::selection { background: var(--ink); color: var(--paper); }
+
+/* ── Nav (matches main site) ─────────────────────────── */
+.ipf-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  padding: 22px clamp(24px, 5vw, 88px);
+  display: flex; align-items: center; justify-content: space-between;
+  background: color-mix(in oklab, var(--paper) 84%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft);
+}
+.ipf-brand {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 22px; letter-spacing: -0.01em; color: var(--ink);
+  text-transform: none; text-decoration: none; cursor: pointer;
+}
+.ipf-brand .dim { color: var(--ink-whisper); }
+.ipf-navlinks { display: flex; align-items: center; gap: 28px; }
+.ipf-navlink {
+  background: transparent; border: 0; padding: 0;
+  color: var(--ink-soft); font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; transition: color 0.15s;
+}
+.ipf-navlink.active, .ipf-navlink:hover { color: var(--ink); }
+
+.ipf-iconbtn {
+  width: 34px; height: 34px; display: inline-flex;
+  align-items: center; justify-content: center;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent; color: var(--ink); cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.ipf-iconbtn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.ipf-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 10px 14px; border: 1px solid var(--rule);
+  background: transparent; color: var(--ink); border-radius: 999px;
+  cursor: pointer; text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.ipf-pill:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.ipf-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.ipf-meta {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-whisper);
+}
+.ipf-tag {
+  display: inline-block; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  text-decoration: none; padding: 4px 9px;
+  border: 1px solid var(--rule); border-radius: 999px;
+  transition: all 0.15s;
+}
+.ipf-tag:hover { border-color: var(--ink); color: var(--ink); }
+.ipf-hairline { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+/* Fixed top progress bar (written into body by PostDetails script) */
+.ipf-progress-container { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 15; pointer-events: none; }
+#myBar, .ipf-progress-bar { height: 2px; width: 0%; background: var(--ink); transition: width 0.08s linear; }
+
+/* ── Index (Var B · Reading Room) ──────────────────── */
+.ipf-index-wrap { max-width: 820px; margin: 0 auto; padding: 160px 48px 120px; }
+.ipf-index-hero { text-align: center; margin-bottom: 96px; }
+.ipf-display {
+  font-family: var(--serif); font-weight: 300; font-style: italic;
+  letter-spacing: -0.02em; line-height: 0.98; color: var(--ink); margin: 0;
+}
+.ipf-index-hero h1 { font-size: clamp(48px, 6.2vw, 92px); line-height: 1.02; }
+.ipf-index-hero h1 em { color: var(--ink-soft); }
+.ipf-index-hero p {
+  font-family: var(--read); font-weight: 300; font-size: 17px;
+  color: var(--ink-soft); line-height: 1.7; margin: 28px auto 0;
+  max-width: 46ch; text-wrap: pretty;
+}
+.ipf-index-cta { display: inline-flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; justify-content: center; }
+
+.ipf-year-group {
+  margin-bottom: 80px;
+  display: grid; grid-template-columns: 100px 1fr; gap: 36px;
+}
+.ipf-year-label { position: sticky; top: 100px; }
+.ipf-year-label .year {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: 44px; color: var(--ink-soft); letter-spacing: -0.02em;
+  line-height: 1; margin-bottom: 8px;
+}
+.ipf-row-b {
+  display: block; padding: 32px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none; color: inherit;
+  transition: transform 0.3s;
+}
+.ipf-row-b:last-child { border-bottom: none; }
+.ipf-row-b:hover { transform: translateX(4px); }
+.ipf-row-b:hover h3 { font-style: italic; }
+.ipf-row-b .no {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: 28px; color: var(--ink-whisper); letter-spacing: -0.01em;
+}
+.ipf-row-b .rowhead { display: flex; gap: 14px; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; }
+.ipf-row-b h3 {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 34px; line-height: 1.1; letter-spacing: -0.015em;
+  color: var(--ink); margin: 0 0 12px;
+}
+.ipf-row-b p {
+  font-family: var(--read); font-weight: 300; font-size: 16px;
+  color: var(--ink-soft); line-height: 1.6; margin: 0;
+  max-width: 56ch; text-wrap: pretty;
+}
+
+.ipf-index-foot {
+  text-align: center; margin-top: 72px; padding-top: 36px;
+  border-top: 1px solid var(--rule);
+}
+.ipf-index-foot .colophon {
+  font-family: var(--read); font-style: italic; font-weight: 300;
+  font-size: 14px; color: var(--ink-soft); margin-bottom: 14px;
+}
+
+/* ── Post (Var A · Editorial Ledger) ───────────────── */
+.ipf-post-wrap {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 140px;
+  gap: 56px;
+  padding: 160px clamp(24px, 5vw, 88px) 120px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.ipf-side { position: relative; }
+.ipf-side-inner { position: sticky; top: 120px; display: flex; flex-direction: column; gap: 28px; }
+.ipf-side-inner .backlink {
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.ipf-side-inner .field-label { margin-bottom: 6px; }
+.ipf-side-inner .field-value { font-family: var(--read); font-size: 14px; color: var(--ink); }
+
+.ipf-toc-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ipf-toc-list a {
+  font-family: var(--read); font-style: italic; font-size: 14px;
+  color: var(--ink-whisper); text-decoration: none; line-height: 1.35;
+  border-left: 1px solid transparent; padding-left: 10px;
+  display: block; transition: color 0.2s, border-color 0.2s;
+}
+.ipf-toc-list a:hover,
+.ipf-toc-list a.active {
+  color: var(--ink); border-left-color: var(--ink);
+}
+
+.ipf-post-body { min-width: 0; max-width: 640px; }
+.ipf-post-body .eyebrow { margin-bottom: 14px; }
+.ipf-post-body h1 {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: clamp(40px, 5.4vw, 72px); line-height: 1.02;
+  letter-spacing: -0.02em; color: var(--ink); margin: 0 0 22px;
+}
+.ipf-post-body .lede {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 22px; line-height: 1.4; color: var(--ink-soft);
+  margin: 0 0 48px; max-width: 42ch;
+}
+
+.app-prose, .ipf-prose {
+  font-family: var(--read); font-weight: 300; font-size: 18px;
+  line-height: 1.78; color: var(--ink);
+}
+.app-prose p, .ipf-prose p { margin: 0 0 1.2em; text-wrap: pretty; }
+.app-prose em, .ipf-prose em { font-style: italic; color: var(--ink); }
+.app-prose h2, .ipf-prose h2 {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: 32px; letter-spacing: -0.015em; line-height: 1.15;
+  margin: 2.2em 0 0.7em; color: var(--ink);
+}
+.app-prose h3, .ipf-prose h3 {
+  font-family: var(--serif); font-weight: 500; font-size: 22px;
+  margin: 1.8em 0 0.5em; color: var(--ink);
+}
+.app-prose blockquote, .ipf-prose blockquote {
+  margin: 1.8em 0; padding-left: 22px;
+  border-left: 1px solid var(--rule);
+  font-style: italic; color: var(--ink-soft); font-size: 17px;
+}
+.app-prose a, .ipf-prose a {
+  color: var(--ink); text-decoration: none;
+  border-bottom: 1px solid var(--rule); padding-bottom: 1px;
+  transition: border-color 0.2s;
+}
+.app-prose a:hover, .ipf-prose a:hover { border-bottom-color: var(--ink); }
+.app-prose code, .ipf-prose code {
+  font-family: var(--mono); font-size: 0.86em;
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  padding: 2px 6px; border-radius: 3px;
+}
+.app-prose pre, .ipf-prose pre {
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+  background: var(--paper-deep); border: 1px solid var(--rule);
+  border-radius: 3px; padding: 18px 20px; overflow-x: auto; margin: 1.6em 0;
+}
+.app-prose pre code, .ipf-prose pre code { background: transparent; padding: 0; }
+
+/* Folio (right rail) */
+.ipf-folio { text-align: right; }
+.ipf-folio .pct {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: 44px; letter-spacing: -0.02em; color: var(--ink-soft); line-height: 1;
+}
+.ipf-folio .pct sup { font-size: 20px; color: var(--ink-whisper); }
+
+/* Prev/Next */
+.ipf-prevnext {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--rule);
+}
+.ipf-prevnext a { text-decoration: none; color: inherit; }
+.ipf-prevnext .next { text-align: right; }
+.ipf-prevnext .title {
+  font-family: var(--serif); font-style: italic; font-size: 22px;
+  color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; margin-top: 8px;
+}
+
+/* Footer */
+.ipf-footer {
+  padding: 48px clamp(24px, 5vw, 88px) 72px;
+  border-top: 1px solid var(--rule);
+  display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;
+}
+.ipf-footer .colophon {
+  font-family: var(--read); font-style: italic; font-weight: 300;
+  font-size: 14px; color: var(--ink-soft); max-width: 56ch;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .ipf-post-wrap {
+    grid-template-columns: 1fr;
+    padding: 130px 24px 80px;
+  }
+  .ipf-side-inner { position: static; flex-direction: row; flex-wrap: wrap; gap: 20px; }
+  .ipf-folio { display: none; }
+  .ipf-year-group { grid-template-columns: 1fr; gap: 14px; }
+  .ipf-year-label { position: static; }
+  .ipf-navlinks { gap: 18px; }
+  .ipf-index-wrap { padding: 130px 24px 80px; }
+}
