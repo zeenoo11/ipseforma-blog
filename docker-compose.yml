@@ -1,0 +1,9 @@
+services:
+  blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ipseforma-blog
+    restart: unless-stopped
+    ports:
+      - "2368:80"
